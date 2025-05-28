@@ -1,48 +1,29 @@
 {
-"update_url": "https://clients2.google.com/service/update2/crx",
-
-    "manifest_version": 3,
-    "name": "AI Test Generator",
-    "version": "1.5",
-    "description": "Test automation code generator using Generative AI",
-    "permissions": [
-        "activeTab",
-        "scripting",
-        "sidePanel",
-        "storage"
-    ],
-    "action": {
-        "default_title": "genai",
-        "default_icon": {
-            "16": "assets/images/logo128.png",
-            "32": "assets/images/logo128.png",
-            "48": "assets/images/logo128.png",
-            "128": "assets/images/logo128.png"
-        }
-    },
-    "icons": {
-        "16": "assets/images/logo128.png",
-        "32": "assets/images/logo128.png",
-        "48": "assets/images/logo128.png",
-        "128": "assets/images/logo128.png"
-    },
-    "side_panel": {
-        "default_path": "panel.html"
-    },
-    "background": {
-        "service_worker": "bg.js"
-    },
-    "web_accessible_resources": [{
-        "resources": [
-            "lib/marked/marked.min.js",
-            "lib/prism/prism.js",
-            "lib/prism/prism-typescript.js",
-            "lib/prism/prism-tomorrow.css",
-            "src/content/content.js"
-        ],
-        "matches": ["<all_urls>"]
-    }],
-    "content_security_policy": {
-        "extension_pages": "script-src 'self'; connect-src 'self'  https://api.groq.com https://api.openai.com https://api.testleaf.com"
+  "manifest_version": 3,
+  "name": "AI Test Case Generator",
+  "version": "1.0",
+  "description": "Inspect & Capture-Based Test Case Generator",
+  "icons": {
+    "48": "assets/images/logo48.png"
+  },
+  "permissions": ["storage", "scripting", "sidePanel"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "bg.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content_scripts/content.js"],
+      "css": ["src/content_scripts/inspect.css"]
     }
+  ],
+  "side_panel": {
+    "default_path": "src/sidepanel/sidepanel.html"
+  },
+  "action": {
+    "default_icon": {
+      "48": "assets/images/logo48.png"
+    }
+  }
 }

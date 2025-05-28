@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TestCase Generator</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="tabs">
+    <button id="generator-tab" class="active">Generator</button>
+    <button id="settings-tab">Settings</button>
+  </div>
+
+  <!-- Generator Tab -->
+  <div id="generator" class="tab-content active">
+    <div class="section">
+      <h3>Output Selection</h3>
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="feature-test" checked> Feature/Manual Test Case</label>
+        <label><input type="checkbox" id="test-page"> Test Page Code</label>
+        <label><input type="checkbox" id="test-script"> Test Script</label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Inspect</h3>
+      <div class="button-group">
+        <button id="inspect-btn">Inspect</button>
+        <button id="stop-btn" disabled>Stop</button>
+        <button id="reset-btn">Reset</button>
+        <button id="generate-btn">Generate</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Elements Selected <span id="element-count">0</span></h3>
+      <div id="selected-elements" class="element-list"></div>
+    </div>
+
+    <div class="section">
+      <h3>Additional Context (Optional)</h3>
+      <textarea id="context-input" placeholder="Add more context to help the AI generate better test cases..."></textarea>
+    </div>
+
+    <div class="section output-section">
+      <h3>Generated Output</h3>
+      <div id="output-container">
+        <textarea id="output-area" readonly></textarea>
+        <div class="output-actions">
+          <button id="copy-btn">Copy</button>
+          <button id="download-btn">Download</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Tab -->
+  <div id="settings" class="tab-content">
+    <h2>Configuration Settings</h2>
+    
+    <div class="form-group">
+      <label>Programming Language</label>
+      <select id="language">
+        <option value="typescript" selected>TypeScript</option>
+        <option value="java">Java</option>
+        <option value="csharp">C#</option>
+        <option value="python">Python</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Automation Tool</label>
+      <select id="automation-tool">
+        <option value="playwright" selected>Playwright</option>
+        <option value="selenium">Selenium</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>LLM Provider</label>
+      <select id="llm-provider">
+        <option value="openai">OpenAI</option>
+        <option value="groq">Groq</option>
+        <option value="testleaf">Testleaf</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>LLM Model</label>
+      <select id="llm-model">
+        <option value="gpt-4">GPT-4</option>
+        <option value="gpt-3.5">GPT-3.5</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>API Key</label>
+      <input type="password" id="api-key" placeholder="Enter your API key">
+    </div>
+
+    <div class="form-group toggle-group">
+      <label>Test Case Output Format</label>
+      <div class="toggle">
+        <input type="checkbox" id="output-format" checked>
+        <label for="output-format">
+          <span class="manual">Manual Test</span>
+          <span class="feature">Feature File</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group toggle-group">
+      <label>Enable Multi-Page Selection</label>
+      <div class="toggle">
+        <input type="checkbox" id="multi-page">
+        <label for="multi-page"></label>
+      </div>
+    </div>
+
+    <div class="form-group toggle-group">
+      <label>Enable Test Execution Mode</label>
+      <div class="toggle">
+        <input type="checkbox" id="test-execution">
+        <label for="test-execution"></label>
+      </div>
+    </div>
+
+    <button id="save-settings">Save Settings</button>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
