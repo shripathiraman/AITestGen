@@ -36,10 +36,18 @@
         <h3>Inspect Elements</h3>
       </div>
       <div class="button-group">
-        <button id="inspect-btn">Inspect</button>
-        <button id="stop-btn" disabled>Stop</button>
-        <button id="reset-btn">Reset</button>
-        <button id="generate-btn">Generate</button>
+        <button id="inspect-btn">
+          <span class="tab-icon">🔍</span> Inspect
+        </button>
+        <button id="stop-btn" disabled>
+          <span class="tab-icon">⏹️</span> Stop
+        </button>
+        <button id="reset-btn">
+          <span class="tab-icon">🔄</span> Reset
+        </button>
+        <button id="generate-btn">
+          <span class="tab-icon">✨</span> Generate
+        </button>
       </div>
     </div>
 
@@ -66,8 +74,12 @@
       </div>
       <textarea id="output-area" readonly></textarea>
       <div class="output-actions">
-        <button id="copy-btn">Copy</button>
-        <button id="download-btn">Download</button>
+        <button id="copy-btn">
+          <span class="tab-icon">📋</span> Copy
+        </button>
+        <button id="download-btn">
+          <span class="tab-icon">📥</span> Download
+        </button>
       </div>
     </div>
   </div>
@@ -181,7 +193,9 @@
         </div>
       </div>
 
-      <button id="save-settings">Save Settings</button>
+      <button id="save-settings">
+        <span class="tab-icon">💾</span> Save Settings
+      </button>
     </div>
   </div>
 
