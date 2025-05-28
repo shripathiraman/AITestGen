@@ -1,0 +1,15 @@
+extension/
+├── manifest.json
+└── icons/
+    └── icon48.png
+└── src/    
+    ├── sidepanel/
+    │   ├── sidepanel.html
+    │   ├── sidepanel.css
+    │   └── sidepanel.js
+    ├── content_scripts/
+    │   ├── content.js
+    │   └── inspect.css
+    ├── background/
+    │   └── background.js
+
