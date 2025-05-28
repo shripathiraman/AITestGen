@@ -4,7 +4,7 @@
   "version": "1.0",
   "description": "Inspect & Capture-Based Test Case Generator",
   "icons": {
-    "48": "assets/images/logo48.png"
+    "48": "icons/icon48.png"
   },
   "permissions": ["storage", "scripting", "sidePanel"],
   "host_permissions": ["<all_urls>"],
@@ -23,7 +23,7 @@
   },
   "action": {
     "default_icon": {
-      "48": "assets/images/logo48.png"
+      "48": "icons/icon48.png"
     }
   }
 }
