@@ -373,4 +373,28 @@ ${testScript}`;
       }, 2000);
     });
   }
+
+  const featureTestCheckboxLabel = document.querySelector('label[for="feature-test"]');
+  const dualToggleOptions = document.querySelectorAll('.dual-option');
+
+  // Function to update the label based on the selected option
+  const updateFeatureTestLabel = () => {
+    const selectedOption = document.querySelector('.dual-option.active').dataset.value;
+    featureTestCheckboxLabel.innerHTML = `<input type="checkbox" id="feature-test" checked> ${selectedOption === 'manual' ? 'Manual Test Case' : 'Feature Test Case'}`;
+  };
+
+  // Add event listeners to toggle options
+  dualToggleOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      // Update active class
+      dualToggleOptions.forEach(opt => opt.classList.remove('active'));
+      option.classList.add('active');
+
+      // Update the label
+      updateFeatureTestLabel();
+    });
+  });
+
+  // Initial label update
+  updateFeatureTestLabel();
 });
