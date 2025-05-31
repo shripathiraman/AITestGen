@@ -601,7 +601,12 @@ ${testScript}`;
   const updateFeatureTestLabel = () => {
     const selectedOption = document.querySelector('.dual-option.active').dataset.value;
     console.log("[SP] Updating feature test label based on selected option:", selectedOption);
-    featureTestCheckboxLabel.innerHTML = `<input type="checkbox" id="feature-test" checked> ${selectedOption === 'manual' ? 'Manual Test Case' : 'Feature Test Case'}`;
+
+    const featureTestCheckbox = document.getElementById('feature-test');
+    const featureTestCheckboxLabel = document.querySelector('label[for="feature-test"]');
+
+    // Update the label text based on the selected option
+    featureTestCheckboxLabel.innerHTML = `${selectedOption === 'manual' ? 'Manual Test Case' : 'Feature Test Case'}`;
   };
 
   // Add event listeners to toggle options

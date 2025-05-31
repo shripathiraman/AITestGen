@@ -9,7 +9,7 @@
 <body>
   <!-- Current Settings Preview -->
   <div class="preview-section">
-    <div class="preview-title">Now with flow</div>
+    <div class="preview-title">Case Carft AI</div>
     <div class="preview-icons">
       <div class="preview-icon" title="Output Format: Manual Test">
         📝
@@ -39,7 +39,7 @@
     <div class="section">
       <div class="section-title">
         <span class="section-icon">🔍</span>
-        <h3>Inspect Elements</h3>
+        <h5>Inspect Elements</h5>
       </div>
       <div class="button-group">
         <button id="inspect-btn">
@@ -60,7 +60,7 @@
     <div class="section">
       <div class="section-title">
         <span class="section-icon">📍</span>
-        <h3>Elements Selected <span id="element-count">0</span></h3>
+        <h5>Elements Selected <span id="element-count">0</span></h5>
       </div>
       <div id="selected-elements" class="element-list"></div>
     </div>
@@ -68,7 +68,7 @@
     <div class="section">
       <div class="section-title">
         <span class="section-icon">📝</span>
-        <h3>Additional Context (Optional)</h3>
+        <h5>Additional Context (Optional)</h5>
       </div>
       <textarea id="context-input" placeholder="Add more context to help the AI generate better test cases..."></textarea>
     </div>
@@ -76,7 +76,7 @@
     <div class="section output-section">
       <div class="section-title">
         <span class="section-icon">📄</span>
-        <h3>Generated Output</h3>
+        <h5>Generated Output</h5>
       </div>
       <label for="output-area" class="visually-hidden">Generated Output</label>
       <textarea id="output-area" readonly title="Generated Output" placeholder="Generated output will appear here"></textarea>
@@ -158,10 +158,32 @@
       <div class="section-title ai-output-title">
         AI Output's
       </div>
-      <div class="checkbox-group">
-        <label for="feature-test"><input type="checkbox" id="feature-test" checked> Manual Test Case</label>
-        <label><input type="checkbox" id="test-page"> Page Object Model</label>
-        <label><input type="checkbox" id="test-script"> Test Script</label>
+      <div class="switch-toggle">
+        <div class="switch-label">
+          <div class="toggle-title"><label for="feature-test">Manual Test Case</label></div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="feature-test" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="switch-toggle">
+        <div class="switch-label">
+          <div class="toggle-title">Page Object Model</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="test-page">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="switch-toggle">
+        <div class="switch-label">
+          <div class="toggle-title">Test Script</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="test-script">
+          <span class="slider"></span>
+        </label>
       </div>
     </div>      
 
