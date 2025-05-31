@@ -1,11 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
+  console.log("[SP] DOM fully loaded and parsed.");
+
   // Tab switching
-  document.getElementById('generator-tab').addEventListener('click', () => switchTab('generator'));
-  document.getElementById('settings-tab').addEventListener('click', () => switchTab('settings'));
-  
+  document.getElementById('generator-tab').addEventListener('click', () => {
+    console.log("[SP] Generator tab clicked.");
+    switchTab('generator');
+  });
+  document.getElementById('settings-tab').addEventListener('click', () => {
+    console.log("[SP] Settings tab clicked.");
+    switchTab('settings');
+  });
+
   // Load saved settings
+  console.log("[SP] Loading saved settings...");
   loadSettings();
-  
+
   // Generator tab functionality
   const inspectBtn = document.getElementById('inspect-btn');
   const stopBtn = document.getElementById('stop-btn');
@@ -17,87 +26,102 @@ document.addEventListener('DOMContentLoaded', () => {
   const outputArea = document.getElementById('output-area');
   const selectedElements = document.getElementById('selected-elements');
   const elementCount = document.getElementById('element-count');
-  
+
   let currentElements = [];
   let isInspecting = false;
-  
+
   // Initialize from storage
   chrome.storage.local.get(['selectedElements', 'context'], (result) => {
+    console.log("[SP] Initializing from storage:", result);
     if (result.selectedElements) {
       currentElements = result.selectedElements;
+      console.log("[SP] Loaded selected elements:", currentElements);
       renderElements();
     }
     if (result.context) {
       contextInput.value = result.context;
+      console.log("[SP] Loaded context:", result.context);
     }
   });
-  
+
   // Tab switching function
   function switchTab(tabName) {
+    console.log(`[SP] Switching to tab: ${tabName}`);
     document.querySelectorAll('.tab-content').forEach(tab => {
       tab.classList.remove('active');
     });
     document.querySelectorAll('.tabs button').forEach(btn => {
       btn.classList.remove('active');
     });
-    
+
     document.getElementById(`${tabName}-tab`).classList.add('active');
     document.getElementById(tabName).classList.add('active');
   }
-  
+
   // Inspect button
   inspectBtn.addEventListener('click', () => {
+    console.log("[SP] Inspect button clicked.");
     isInspecting = true;
     inspectBtn.disabled = true;
     stopBtn.disabled = false;
-    
+
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+      console.log("[SP] Sending startInspect message to content script.");
       chrome.tabs.sendMessage(tabs[0].id, {action: "startInspect"});
     });
   });
-  
+
   // Stop button
   stopBtn.addEventListener('click', () => {
+    console.log("[SP] Stop button clicked.");
     stopInspection();
   });
-  
+
   // Reset button
   resetBtn.addEventListener('click', () => {
+    console.log("[SP] Reset button clicked.");
     currentElements = [];
     renderElements();
     contextInput.value = '';
     chrome.storage.local.remove(['selectedElements', 'context']);
-    
+    console.log("[SP] Cleared selected elements and context from storage.");
+
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+      console.log("[SP] Sending resetInspect message to content script.");
       chrome.tabs.sendMessage(tabs[0].id, {action: "resetInspect"});
     });
   });
-  
+
   // Generate button
   generateBtn.addEventListener('click', async () => {
+    console.log("[SP] Generate button clicked.");
     const checkboxes = [
       document.getElementById('feature-test'),
       document.getElementById('test-page'),
       document.getElementById('test-script')
     ];
-    
+
     if (!checkboxes.some(checkbox => checkbox.checked)) {
+      console.log("[SP] No output type selected.");
       alert("Please select at least one output type");
       return;
     }
-    
+
     if (currentElements.length === 0) {
+      console.log("[SP] No elements selected.");
       alert("Please select at least one element");
       return;
     }
-    
+
     // Save context
     const context = contextInput.value;
     chrome.storage.local.set({context});
-    
+    console.log("[SP] Saved context:", context);
+
     // Show output section
     document.querySelector('.output-section').style.display = 'block';
-    
+    console.log("[SP] Output section displayed.");
+
     // Get current settings
     const settings = await new Promise(resolve => {
       chrome.storage.local.get([
@@ -107,21 +131,25 @@ document.addEventListener('DOMContentLoaded', () => {
         'llmModel'
       ], resolve);
     });
-    
+    console.log("[SP] Loaded settings:", settings);
+
     // Generate test cases
     const testCase = generateTestCase(currentElements, context, settings);
+    console.log("[SP] Generated test case:", testCase);
     outputArea.value = testCase;
   });
-  
+
   // Copy button
   copyBtn.addEventListener('click', () => {
+    console.log("[SP] Copy button clicked.");
     outputArea.select();
     document.execCommand('copy');
     alert("Copied to clipboard!");
   });
-  
+
   // Download button
   downloadBtn.addEventListener('click', () => {
+    console.log("[SP] Download button clicked.");
     const blob = new Blob([outputArea.value], {type: 'text/plain'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -131,24 +159,28 @@ document.addEventListener('DOMContentLoaded', () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    console.log("[SP] Test case downloaded.");
   });
-  
+
   // Stop inspection function
   function stopInspection() {
+    console.log("[SP] Stopping inspection.");
     isInspecting = false;
     inspectBtn.disabled = false;
     stopBtn.disabled = true;
-    
+
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+      console.log("[SP] Sending stopInspect message to content script.");
       chrome.tabs.sendMessage(tabs[0].id, {action: "stopInspect"});
     });
   }
-  
+
   // Render selected elements
   function renderElements() {
+    console.log("[SP] Rendering selected elements:", currentElements);
     selectedElements.innerHTML = '';
     elementCount.textContent = currentElements.length;
-    
+
     currentElements.forEach((element, index) => {
       const elemDiv = document.createElement('div');
       elemDiv.className = 'element-item';
@@ -158,42 +190,45 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       selectedElements.appendChild(elemDiv);
     });
-    
+
     // Add remove event listeners
     document.querySelectorAll('.element-item .remove').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const index = parseInt(e.target.dataset.index);
+        console.log(`[SP] Removing element at index ${index}.`);
         currentElements.splice(index, 1);
         chrome.storage.local.set({selectedElements: currentElements});
         renderElements();
       });
     });
   }
-  
+
   // Generate test case
   function generateTestCase(elements, context, settings) {
+    console.log("[SP] Generating test case with elements:", elements, "context:", context, "settings:", settings);
     const featureName = "Form Submission Validation";
     const elementsList = elements.map(e => `- ${e.name || e.selector}`).join('\n');
-    
+
     let testScript = '';
     if (settings.automationTool === 'playwright') {
-      testScript = `import { test, expect } from '@playwright/test';
+      testScript = `import { test, expect } from '@playwright/test`;
 
+      testScript += `
 test('validate form submission', async ({ page }) => {
   await page.goto('https://example.com');
   ${elements.map(e => {
-    if (e.selector.startsWith('input')) {
-      return `await page.locator('${e.selector}').fill('test data');`;
-    } else if (e.selector.startsWith('button')) {
-      return `await page.locator('${e.selector}').click();`;
-    }
-    return '';
-  }).filter(Boolean).join('\n  ')}
+        if (e.selector.startsWith('input')) {
+          return `await page.locator('${e.selector}').fill('test data');`;
+        } else if (e.selector.startsWith('button')) {
+          return `await page.locator('${e.selector}').click();`;
+        }
+        return '';
+      }).filter(Boolean).join('\n  ')}
 });`;
     } else {
       testScript = `// Selenium test script would be generated here`;
     }
-    
+
     return `Generated using:
 - Language: ${settings.language || 'TypeScript'}
 - Tool: ${settings.automationTool || 'Playwright'}
@@ -221,9 +256,10 @@ Then I should see the welcome message
 Test Script:
 ${testScript}`;
   }
-  
+
   // Listen for element selections from content script
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log("[SP] Received message from content script:", request);
     if (request.action === "elementSelected") {
       currentElements.push({
         selector: request.selector,
@@ -234,33 +270,38 @@ ${testScript}`;
       renderElements();
     }
   });
-  
+
   // Settings tab functionality
-  document.getElementById('save-settings').addEventListener('click', saveSettings);
-  
+  document.getElementById('save-settings').addEventListener('click', () => {
+    console.log("[SP] Save settings button clicked.");
+    saveSettings();
+  });
+
   // Dual option toggle functionality
   document.querySelectorAll('.dual-option').forEach(option => {
     option.addEventListener('click', function() {
+      console.log("[SP] Dual option clicked:", this.textContent);
       // Remove active class from siblings
       this.parentElement.querySelectorAll('.dual-option').forEach(el => {
         el.classList.remove('active');
       });
-      
+
       // Add active class to clicked element
       this.classList.add('active');
-      
+
       // Update preview
       const previewBox = document.querySelector('.preview-box:first-child p');
       previewBox.innerHTML = `<span class="status-indicator status-on"></span> ${this.textContent}`;
     });
   });
-  
+
   // Toggle switch functionality
   document.querySelectorAll('.switch input').forEach(switchInput => {
     switchInput.addEventListener('change', function() {
+      console.log(`[SP] Switch toggled: ${this.id}, checked: ${this.checked}`);
       const previewBoxes = document.querySelectorAll('.preview-box');
       const id = this.id;
-      
+
       if (id === 'multi-page') {
         const statusEl = previewBoxes[1].querySelector('p');
         if (this.checked) {
@@ -269,7 +310,7 @@ ${testScript}`;
           statusEl.innerHTML = '<span class="status-indicator status-off"></span> Disabled';
         }
       }
-      
+
       if (id === 'test-execution') {
         const statusEl = previewBoxes[2].querySelector('p');
         if (this.checked) {
@@ -280,8 +321,9 @@ ${testScript}`;
       }
     });
   });
-  
+
   function loadSettings() {
+    console.log("[SP] Loading settings from storage...");
     chrome.storage.local.get([
       'language', 
       'automationTool',
@@ -292,6 +334,7 @@ ${testScript}`;
       'multiPage',
       'testExecution'
     ], (settings) => {
+      console.log("[SP] Settings loaded:", settings);
       if (settings.language) {
         document.getElementById('language').value = settings.language;
       }
@@ -312,7 +355,7 @@ ${testScript}`;
           option.classList.remove('active');
           if (option.dataset.value === settings.outputFormat) {
             option.classList.add('active');
-            
+
             // Update preview
             const previewBox = document.querySelector('.preview-box:first-child p');
             previewBox.innerHTML = `<span class="status-indicator status-on"></span> ${option.textContent}`;
@@ -321,7 +364,7 @@ ${testScript}`;
       }
       if (settings.multiPage !== undefined) {
         document.getElementById('multi-page').checked = settings.multiPage;
-        
+
         // Update preview
         const previewBoxes = document.querySelectorAll('.preview-box');
         const statusEl = previewBoxes[1].querySelector('p');
@@ -333,7 +376,7 @@ ${testScript}`;
       }
       if (settings.testExecution !== undefined) {
         document.getElementById('test-execution').checked = settings.testExecution;
-        
+
         // Update preview
         const previewBoxes = document.querySelectorAll('.preview-box');
         const statusEl = previewBoxes[2].querySelector('p');
@@ -345,8 +388,50 @@ ${testScript}`;
       }
     });
   }
-  
+
   function saveSettings() {
+    console.log("[SP] Saving settings...");
+
+    const apiKeyInput = document.getElementById('api-key');
+    const apiKey = apiKeyInput.value;
+
+    // Check if API key is provided
+    if (!apiKey) {
+      console.log("[SP] API key is missing.");
+
+      // Highlight the input field
+      apiKeyInput.classList.add('error-border');
+
+      // Remove existing error message if present
+      const existingError = document.getElementById('api-key-error');
+      if (existingError) {
+        existingError.remove();
+      }
+
+      // Create and display error message
+      const errorMessage = document.createElement('div');
+      errorMessage.id = 'api-key-error';
+      errorMessage.textContent = 'API Key is mandatory. Please provide a valid API Key.';
+      errorMessage.classList.add('error-message');
+      apiKeyInput.parentNode.insertBefore(errorMessage, apiKeyInput.nextSibling);
+
+      // Set focus on the API key input field
+      apiKeyInput.focus();
+
+      // Add event listener to remove error styling when input is corrected
+      apiKeyInput.addEventListener('input', () => {
+        if (apiKeyInput.value.trim() !== '') {
+          apiKeyInput.classList.remove('error-border');
+          const errorElement = document.getElementById('api-key-error');
+          if (errorElement) {
+            errorElement.remove();
+          }
+        }
+      });
+
+      return; // Exit the function without saving
+    }
+
     const settings = {
       language: document.getElementById('language').value,
       automationTool: document.getElementById('automation-tool').value,
@@ -357,16 +442,17 @@ ${testScript}`;
       multiPage: document.getElementById('multi-page').checked,
       testExecution: document.getElementById('test-execution').checked
     };
-    
+
     chrome.storage.local.set(settings, () => {
+      console.log("[SP] Settings saved:", settings);
       // Animation for save button
       const saveBtn = document.getElementById('save-settings');
       const originalText = saveBtn.textContent;
       const originalBg = saveBtn.style.background;
-      
+
       saveBtn.textContent = 'Settings Saved!';
       saveBtn.style.background = '#10b981';
-      
+
       setTimeout(() => {
         saveBtn.textContent = originalText;
         saveBtn.style.background = originalBg;
@@ -380,12 +466,14 @@ ${testScript}`;
   // Function to update the label based on the selected option
   const updateFeatureTestLabel = () => {
     const selectedOption = document.querySelector('.dual-option.active').dataset.value;
+    console.log("[SP] Updating feature test label based on selected option:", selectedOption);
     featureTestCheckboxLabel.innerHTML = `<input type="checkbox" id="feature-test" checked> ${selectedOption === 'manual' ? 'Manual Test Case' : 'Feature Test Case'}`;
   };
 
   // Add event listeners to toggle options
   dualToggleOptions.forEach(option => {
     option.addEventListener('click', () => {
+      console.log("[SP] Dual toggle option clicked:", option.textContent);
       // Update active class
       dualToggleOptions.forEach(opt => opt.classList.remove('active'));
       option.classList.add('active');
@@ -405,6 +493,7 @@ ${testScript}`;
   const previewIcons = document.querySelector('.preview-icons');
 
   const updatePreviewIcons = () => {
+    console.log("[SP] Updating preview icons...");
     // Clear existing icons
     previewIcons.innerHTML = '';
 
@@ -434,14 +523,21 @@ ${testScript}`;
   // Event Listeners
   outputFormatToggle.addEventListener('click', (event) => {
     if (event.target.classList.contains('dual-option')) {
+      console.log("[SP] Output format toggle clicked:", event.target.textContent);
       outputFormatToggle.querySelectorAll('.dual-option').forEach(option => option.classList.remove('active'));
       event.target.classList.add('active');
       updatePreviewIcons();
     }
   });
 
-  multiPageCheckbox.addEventListener('change', updatePreviewIcons);
-  testExecutionCheckbox.addEventListener('change', updatePreviewIcons);
+  multiPageCheckbox.addEventListener('change', () => {
+    console.log("[SP] Multi-page checkbox toggled:", multiPageCheckbox.checked);
+    updatePreviewIcons();
+  });
+  testExecutionCheckbox.addEventListener('change', () => {
+    console.log("[SP] Test execution checkbox toggled:", testExecutionCheckbox.checked);
+    updatePreviewIcons();
+  });
 
   // Initial Update
   updatePreviewIcons();

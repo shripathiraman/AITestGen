@@ -452,6 +452,24 @@ input:checked + .slider:before {
   background-color: #1d4ed8;
 }
 
+/* Error border for input fields */
+.error-border {
+  border: 2px solid red;
+}
+
+/* Keep the red border when the input field is focused */
+.error-border:focus {
+  border: 2px solid red;
+  outline: none; /* Remove the default focus outline */
+}
+
+/* Error message styling */
+.error-message {
+  color: red;
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+
 /* Responsive Design */
 @media (max-width: 480px) {
   .preview-container {
