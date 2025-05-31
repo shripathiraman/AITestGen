@@ -355,6 +355,15 @@ ${testScript}`;
   document.getElementById('save-settings').addEventListener('click', () => {
     console.log("[SP] Save settings button clicked.");
     saveSettings();
+
+    // Save checkbox states for "AI Output's"
+    const featureTest = document.getElementById('feature-test').checked;
+    const testPage = document.getElementById('test-page').checked;
+    const testScript = document.getElementById('test-script').checked;
+
+    chrome.storage.local.set({ featureTest, testPage, testScript }, () => {
+      console.log("[SP] Saved AI Output's settings:", { featureTest, testPage, testScript });
+    });
   });
 
   // Dual option toggle functionality
@@ -431,17 +440,21 @@ ${testScript}`;
   // Initial population of LLM Models
   updateLLMModels();
 
+  // Load saved settings
   function loadSettings() {
     console.log("[SP] Loading settings from storage...");
     chrome.storage.local.get([
-      'language', 
+      'language',
       'automationTool',
       'llmProvider',
       'llmModel',
       'apiKey',
       'outputFormat',
       'multiPage',
-      'testExecution'
+      'testExecution',
+      'featureTest',
+      'testPage',
+      'testScript'
     ], (settings) => {
       console.log("[SP] Settings loaded:", settings);
       if (settings.language) {
@@ -466,8 +479,8 @@ ${testScript}`;
             option.classList.add('active');
 
             // Update preview
-            const previewBox = document.querySelector('.preview-box:first-child p');
-            previewBox.innerHTML = `<span class="status-indicator status-on"></span> ${option.textContent}`;
+            // const previewBox = document.querySelector('.preview-box:first-child p');
+            // previewBox.innerHTML = `<span class="status-indicator status-on"></span> ${option.textContent}`;
           }
         });
       }
@@ -475,25 +488,34 @@ ${testScript}`;
         document.getElementById('multi-page').checked = settings.multiPage;
 
         // Update preview
-        const previewBoxes = document.querySelectorAll('.preview-box');
+        /*const previewBoxes = document.querySelectorAll('.preview-box');
         const statusEl = previewBoxes[1].querySelector('p');
         if (settings.multiPage) {
           statusEl.innerHTML = '<span class="status-indicator status-on"></span> Enabled';
         } else {
           statusEl.innerHTML = '<span class="status-indicator status-off"></span> Disabled';
-        }
+        }*/
       }
       if (settings.testExecution !== undefined) {
         document.getElementById('test-execution').checked = settings.testExecution;
 
         // Update preview
-        const previewBoxes = document.querySelectorAll('.preview-box');
+        /*const previewBoxes = document.querySelectorAll('.preview-box');
         const statusEl = previewBoxes[2].querySelector('p');
         if (settings.testExecution) {
           statusEl.innerHTML = '<span class="status-indicator status-on"></span> Enabled';
         } else {
           statusEl.innerHTML = '<span class="status-indicator status-off"></span> Disabled';
-        }
+        }*/
+      }
+      if (settings.featureTest !== undefined) {
+        document.getElementById('feature-test').checked = settings.featureTest;
+      }
+      if (settings.testPage !== undefined) {
+        document.getElementById('test-page').checked = settings.testPage;
+      }
+      if (settings.testScript !== undefined) {
+        document.getElementById('test-script').checked = settings.testScript;
       }
     });
   }
@@ -549,7 +571,10 @@ ${testScript}`;
       apiKey: document.getElementById('api-key').value,
       outputFormat: document.querySelector('.dual-option.active').dataset.value,
       multiPage: document.getElementById('multi-page').checked,
-      testExecution: document.getElementById('test-execution').checked
+      testExecution: document.getElementById('test-execution').checked,
+      featureTest: document.getElementById('feature-test').checked,
+      testPage: document.getElementById('test-page').checked,
+      testScript: document.getElementById('test-script').checked
     };
 
     chrome.storage.local.set(settings, () => {

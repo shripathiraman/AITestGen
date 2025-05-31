@@ -88,6 +88,7 @@ body {
   margin-bottom: 15px;
   color: var(--color-text);
   font-size: 1.1rem;
+  font-weight: 600; /* Match font weight of Test Case Output */
 }
 
 .section-icon {
@@ -97,8 +98,8 @@ body {
 /* Generator Tab Styles */
 .checkbox-group {
   display: flex;
-  flex-direction: row; /* Change direction to row for horizontal alignment */
-  gap: 12px; /* Maintain spacing between checkboxes */
+  flex-direction: column; /* Vertical alignment */
+  gap: 12px; /* Space between checkboxes */
   margin-bottom: 15px;
 }
 
@@ -481,6 +482,30 @@ input:checked + .slider:before {
 
 .switch-toggle.cool-grey-background {
   margin-bottom: 15px; /* Ensure consistent spacing */
+}
+
+/* Update AI Output's container to match Test Case Output */
+.section.ai-output {
+  background-color: var(--color-background); /* Match Test Case Output */
+  border-radius: 10px;
+  padding: 15px; /* Match padding of .toggle-container */
+  margin-bottom: 20px;
+  box-shadow: none; /* Remove shadow for consistency */
+}
+
+/* Update AI Output's title to match Test Case Output */
+.section-title.ai-output-title {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 12px;  /* Match font size of Test Case Output */
+  margin-bottom: 5px; /* Match .toggle-title */
+}
+
+/* Optional: Add description styling if needed */
+.section-description.ai-output-description {
+  color: var(--color-muted-text);
+  font-size: 0.9rem;
+  margin-top: 5px;
 }
 
 /* Responsive Design */
