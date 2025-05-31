@@ -397,24 +397,13 @@ input:checked + .slider:before {
 
 .preview-container {
   display: flex;
-  gap: 12px; /* Space between preview boxes */
-  justify-content: center; /* Center align the preview boxes */
+  gap: 10px;
 }
 
 .preview-box {
-  flex: 1;
-  background-color: white;
-  border-radius: 8px;
-  padding: 12px;
-  text-align: center;
-  font-size: 0.9rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.preview-box h4 {
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #1e293b;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
 }
 
 .status-indicator {
@@ -422,15 +411,14 @@ input:checked + .slider:before {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  margin-right: 6px;
 }
 
 .status-on {
-  background-color: #10b981;
+  background-color: green;
 }
 
 .status-off {
-  background-color: #ef4444;
+  background-color: red;
 }
 
 /* Save Button */

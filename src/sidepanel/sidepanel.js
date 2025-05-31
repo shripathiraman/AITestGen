@@ -322,6 +322,39 @@ ${testScript}`;
     });
   });
 
+  // Define LLM Models for each provider
+  const llmModels = {
+    openai: ['GPT-4', 'GPT-3.5', 'Davinci'],
+    groq: ['Palm-2', 'Bard'],
+    testleaf: ['Azure GPT-4', 'Azure GPT-3.5']
+  };
+
+  // Get references to the dropdowns
+  const llmProviderDropdown = document.getElementById('llm-provider');
+  const llmModelDropdown = document.getElementById('llm-model');
+
+  // Function to update LLM Model options
+  const updateLLMModels = () => {
+    const selectedProvider = llmProviderDropdown.value;
+
+    // Clear existing options
+    llmModelDropdown.innerHTML = '';
+
+    // Populate new options based on the selected provider
+    llmModels[selectedProvider].forEach(model => {
+      const option = document.createElement('option');
+      option.value = model;
+      option.textContent = model;
+      llmModelDropdown.appendChild(option);
+    });
+  };
+
+  // Add event listener to LLM Provider dropdown
+  llmProviderDropdown.addEventListener('change', updateLLMModels);
+
+  // Initial population of LLM Models
+  updateLLMModels();
+
   function loadSettings() {
     console.log("[SP] Loading settings from storage...");
     chrome.storage.local.get([

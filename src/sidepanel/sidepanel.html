@@ -26,7 +26,7 @@
   <!-- Tab Header -->
   <div class="tabs">
     <button id="generator-tab" class="active">
-      <span class="tab-icon">📋</span> Generator
+      <span class="tab-icon">📋</span> Record & Generate
     </button>
     <button id="settings-tab">
       <span class="tab-icon">⚙️</span> Settings
@@ -38,7 +38,7 @@
     <div class="section">
       <div class="section-title">
         <span class="section-icon">📤</span>
-        <h3>Output Selection</h3>
+        <h3>AI Output's</h3>
       </div>
       <div class="checkbox-group">
         <label for="feature-test"><input type="checkbox" id="feature-test" checked> Manual Test Case</label>
@@ -89,7 +89,8 @@
         <span class="section-icon">📄</span>
         <h3>Generated Output</h3>
       </div>
-      <textarea id="output-area" readonly></textarea>
+      <label for="output-area" class="visually-hidden">Generated Output</label>
+      <textarea id="output-area" readonly title="Generated Output" placeholder="Generated output will appear here"></textarea>
       <div class="output-actions">
         <button id="copy-btn">
           <span class="tab-icon">📋</span> Copy
@@ -104,6 +105,18 @@
   <!-- Settings Tab -->
   <div id="settings" class="tab-content">
     <div class="section">
+
+      <div class="form-group">
+        <label>
+          <span class="icon">🛠️</span>
+          Automation Tool
+        </label>
+        <select id="automation-tool">
+          <option value="playwright" selected>Playwright</option>
+          <option value="selenium">Selenium</option>
+        </select>
+      </div>
+
       <div class="form-group">
         <label>
           <span class="icon">🌐</span>
@@ -119,24 +132,14 @@
 
       <div class="form-group">
         <label>
-          <span class="icon">🛠️</span>
-          Automation Tool
-        </label>
-        <select id="automation-tool">
-          <option value="playwright" selected>Playwright</option>
-          <option value="selenium">Selenium</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>
           <span class="icon">🤖</span>
           LLM Provider
         </label>
         <select id="llm-provider">
           <option value="openai" selected>OpenAI</option>
           <option value="groq">Groq</option>
-          <option value="testleaf">Testleaf</option>
+          <option value="testleaf">TestLeaf</option>
+          <option value="gemini">Gemini</option>
         </select>
       </div>
 
@@ -146,8 +149,7 @@
           LLM Model
         </label>
         <select id="llm-model">
-          <option value="gpt-4" selected>GPT-4</option>
-          <option value="gpt-3.5">GPT-3.5</option>
+          <!-- Options will be dynamically populated -->
         </select>
       </div>
 
@@ -190,24 +192,6 @@
           <input type="checkbox" id="test-execution">
           <span class="slider"></span>
         </label>
-      </div>
-
-      <div class="preview-section">
-        <div class="preview-title">Current Settings Preview</div>
-        <div class="preview-container">
-          <div class="preview-box">
-            <h4>Output Format</h4>
-            <p><span class="status-indicator status-on"></span> Manual Test</p>
-          </div>
-          <div class="preview-box">
-            <h4>Multi-Page</h4>
-            <p><span class="status-indicator status-on"></span> Enabled</p>
-          </div>
-          <div class="preview-box">
-            <h4>Test Execution</h4>
-            <p><span class="status-indicator status-off"></span> Disabled</p>
-          </div>
-        </div>
       </div>
 
       <button id="save-settings">
