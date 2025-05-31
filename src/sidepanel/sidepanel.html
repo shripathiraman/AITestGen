@@ -112,8 +112,7 @@
           Automation Tool
         </label>
         <select id="automation-tool">
-          <option value="playwright" selected>Playwright</option>
-          <option value="selenium">Selenium</option>
+          <!-- Options will be dynamically populated from dropdown-data.json -->
         </select>
       </div>
 
@@ -123,10 +122,7 @@
           Programming Language
         </label>
         <select id="language">
-          <option value="typescript" selected>TypeScript</option>
-          <option value="java">Java</option>
-          <option value="csharp">C#</option>
-          <option value="python">Python</option>
+          <!-- Options will be dynamically populated from dropdown-data.json and automation-tool -->
         </select>
       </div>
 
@@ -136,10 +132,7 @@
           LLM Provider
         </label>
         <select id="llm-provider">
-          <option value="openai" selected>OpenAI</option>
-          <option value="groq">Groq</option>
-          <option value="testleaf">TestLeaf</option>
-          <option value="gemini">Gemini</option>
+          <!-- Options will be dynamically populated from dropdown-data.json -->
         </select>
       </div>
 
@@ -149,7 +142,7 @@
           LLM Model
         </label>
         <select id="llm-model">
-          <!-- Options will be dynamically populated -->
+          <!-- Options will be dynamically populated from dropdown-data.json and llm-provider-->
         </select>
       </div>
 

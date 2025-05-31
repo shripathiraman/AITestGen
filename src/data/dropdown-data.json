@@ -1,0 +1,60 @@
+{
+  "automationTools": [
+    { "code": "playwright", "description": "Playwright" },
+    { "code": "selenium", "description": "Selenium" },
+    { "code": "cypress", "description": "Cypress" },
+    { "code": "testcafe", "description": "TestCafe" },
+    { "code": "puppeteer", "description": "Puppeteer" }
+  ],
+  "programmingLanguages": {
+    "playwright": [
+      { "code": "typescript", "description": "TypeScript" },
+      { "code": "javascript", "description": "JavaScript" },
+      { "code": "python", "description": "Python" },
+      { "code": "java", "description": "Java" },
+      { "code": "csharp", "description": "C#" }
+    ],
+    "selenium": [
+      { "code": "java", "description": "Java" },
+      { "code": "python", "description": "Python" },
+      { "code": "javascript", "description": "JavaScript" },
+      { "code": "csharp", "description": "C#" },
+      { "code": "ruby", "description": "Ruby" },
+      { "code": "php", "description": "PHP" }
+    ],
+    "cypress": [
+      { "code": "javascript", "description": "JavaScript" },
+      { "code": "typescript", "description": "TypeScript" }
+    ],
+    "testcafe": [
+      { "code": "javascript", "description": "JavaScript" },
+      { "code": "typescript", "description": "TypeScript" }
+    ],
+    "puppeteer": [
+      { "code": "javascript", "description": "JavaScript" },
+      { "code": "typescript", "description": "TypeScript" },
+      { "code": "python", "description": "Python (via Pyppeteer)" },
+      { "code": "java", "description": "Java (via Puppeteer-Java)" },
+      { "code": "csharp", "description": "C# (via Puppeteer-Sharp)" }
+    ]
+  },
+  "llmProviders": [
+    { "code": "openai", "description": "OpenAI" },
+    { "code": "groq", "description": "Groq" },
+    { "code": "testleaf", "description": "TestLeaf" }
+  ],
+  "llmModels": {
+    "openai": [
+      { "code": "gpt-4", "description": "GPT-4" },
+      { "code": "gpt-3.5", "description": "GPT-3.5" }
+    ],
+    "groq": [
+      { "code": "palm-2", "description": "Palm-2" },
+      { "code": "bard", "description": "Bard" }
+    ],
+    "testleaf": [
+      { "code": "azure-gpt-4", "description": "Azure GPT-4" },
+      { "code": "azure-gpt-3.5", "description": "Azure GPT-3.5" }
+    ]
+  }
+}

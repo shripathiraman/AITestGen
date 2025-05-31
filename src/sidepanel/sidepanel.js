@@ -1,5 +1,63 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   console.log("[SP] DOM fully loaded and parsed.");
+
+  // Fetch dropdown data from JSON file
+  const response = await fetch('/src/data/dropdown-data.json');
+  const dropdownData = await response.json();
+
+  // Populate Automation Tool dropdown
+  const automationToolDropdown = document.getElementById('automation-tool');
+  dropdownData.automationTools.forEach(tool => {
+    const option = document.createElement('option');
+    option.value = tool.code;
+    option.textContent = tool.description;
+    automationToolDropdown.appendChild(option);
+  });
+
+  // Populate Programming Language dropdown based on selected Automation Tool
+  const programmingLanguageDropdown = document.getElementById('language');
+  automationToolDropdown.addEventListener('change', () => {
+    const selectedTool = automationToolDropdown.value;
+    programmingLanguageDropdown.innerHTML = ''; // Clear existing options
+
+    dropdownData.programmingLanguages[selectedTool].forEach(language => {
+      const option = document.createElement('option');
+      option.value = language.code;
+      option.textContent = language.description;
+      programmingLanguageDropdown.appendChild(option);
+    });
+  });
+
+  // Trigger initial population of Programming Language dropdown
+  automationToolDropdown.dispatchEvent(new Event('change'));
+
+  // Get references to the dropdowns (declared once)
+  const llmProviderDropdown = document.getElementById('llm-provider');
+  const llmModelDropdown = document.getElementById('llm-model');
+
+  // Populate LLM Provider dropdown
+  dropdownData.llmProviders.forEach(provider => {
+    const option = document.createElement('option');
+    option.value = provider.code;
+    option.textContent = provider.description;
+    llmProviderDropdown.appendChild(option);
+  });
+
+  // Populate LLM Model dropdown based on selected LLM Provider
+  llmProviderDropdown.addEventListener('change', () => {
+    const selectedProvider = llmProviderDropdown.value;
+    llmModelDropdown.innerHTML = ''; // Clear existing options
+
+    dropdownData.llmModels[selectedProvider].forEach(model => {
+      const option = document.createElement('option');
+      option.value = model.code;
+      option.textContent = model.description;
+      llmModelDropdown.appendChild(option);
+    });
+  });
+
+  // Trigger initial population of LLM Model dropdown
+  llmProviderDropdown.dispatchEvent(new Event('change'));
 
   // Tab switching
   document.getElementById('generator-tab').addEventListener('click', () => {
@@ -350,10 +408,6 @@ ${testScript}`;
     groq: ['Palm-2', 'Bard'],
     testleaf: ['Azure GPT-4', 'Azure GPT-3.5']
   };
-
-  // Get references to the dropdowns
-  const llmProviderDropdown = document.getElementById('llm-provider');
-  const llmModelDropdown = document.getElementById('llm-model');
 
   // Function to update LLM Model options
   const updateLLMModels = () => {
