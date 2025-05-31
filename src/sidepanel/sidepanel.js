@@ -397,4 +397,52 @@ ${testScript}`;
 
   // Initial label update
   updateFeatureTestLabel();
+
+  const outputFormatToggle = document.querySelector('.dual-toggle');
+  const multiPageCheckbox = document.getElementById('multi-page');
+  const testExecutionCheckbox = document.getElementById('test-execution');
+
+  const previewIcons = document.querySelector('.preview-icons');
+
+  const updatePreviewIcons = () => {
+    // Clear existing icons
+    previewIcons.innerHTML = '';
+
+    // Update Output Format Icon
+    const outputFormat = outputFormatToggle.querySelector('.dual-option.active').dataset.value;
+    const outputFormatIcon = document.createElement('div');
+    outputFormatIcon.className = 'preview-icon';
+    outputFormatIcon.title = `Output Format: ${outputFormat === 'manual' ? 'Manual Test' : 'Feature File'}`;
+    outputFormatIcon.textContent = outputFormat === 'manual' ? '📝' : '🧩';
+    previewIcons.appendChild(outputFormatIcon);
+
+    // Update Multi-Page Icon
+    const multiPageIcon = document.createElement('div');
+    multiPageIcon.className = 'preview-icon';
+    multiPageIcon.title = `Multi-Page: ${multiPageCheckbox.checked ? 'Enabled' : 'Disabled'}`;
+    multiPageIcon.textContent = multiPageCheckbox.checked ? '📚' : '📖';
+    previewIcons.appendChild(multiPageIcon);
+
+    // Update Test Execution Icon
+    const testExecutionIcon = document.createElement('div');
+    testExecutionIcon.className = 'preview-icon';
+    testExecutionIcon.title = `Test Execution: ${testExecutionCheckbox.checked ? 'Enabled' : 'Disabled'}`;
+    testExecutionIcon.textContent = testExecutionCheckbox.checked ? '⚡' : '⏹️';
+    previewIcons.appendChild(testExecutionIcon);
+  };
+
+  // Event Listeners
+  outputFormatToggle.addEventListener('click', (event) => {
+    if (event.target.classList.contains('dual-option')) {
+      outputFormatToggle.querySelectorAll('.dual-option').forEach(option => option.classList.remove('active'));
+      event.target.classList.add('active');
+      updatePreviewIcons();
+    }
+  });
+
+  multiPageCheckbox.addEventListener('change', updatePreviewIcons);
+  testExecutionCheckbox.addEventListener('change', updatePreviewIcons);
+
+  // Initial Update
+  updatePreviewIcons();
 });
