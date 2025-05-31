@@ -79,17 +79,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Reset button
   resetBtn.addEventListener('click', () => {
-    console.log("[SP] Reset button clicked.");
-    currentElements = [];
-    renderElements();
-    contextInput.value = '';
-    chrome.storage.local.remove(['selectedElements', 'context']);
-    console.log("[SP] Cleared selected elements and context from storage.");
+    // Ask for confirmation before resetting
+    const confirmReset = confirm("Are you sure you want to reset? This will clear all selected elements, context, and generated output.");
+    
+    if (confirmReset) {
+      console.log("[SP] Reset confirmed by user.");
 
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-      console.log("[SP] Sending resetInspect message to content script.");
-      chrome.tabs.sendMessage(tabs[0].id, {action: "resetInspect"});
-    });
+      // Stop inspection if it's active
+      stopInspection();
+
+      // Clear selected elements
+      currentElements = [];
+      renderElements();
+
+      // Clear context input
+      contextInput.value = '';
+
+      // Clear generated output
+      const outputSection = document.querySelector('.output-section');
+      outputSection.style.display = 'none'; // Hide the output section
+      outputArea.value = ''; // Clear the output area
+
+      // Remove data from storage
+      chrome.storage.local.remove(['selectedElements', 'context']);
+      console.log("[SP] Cleared selected elements, context, and output from storage.");
+
+      // Send reset message to content script
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        console.log("[SP] Sending resetInspect message to content script.");
+        chrome.tabs.sendMessage(tabs[0].id, { action: "resetInspect" });
+      });
+    } else {
+      console.log("[SP] Reset canceled by user.");
+    }
   });
 
   // Generate button

@@ -263,6 +263,7 @@ select, input[type="password"] {
   border-radius: 10px;
   padding: 15px;
   margin-top: 15px;
+  margin-bottom: 15px; /* Ensure consistent spacing */
 }
 
 .toggle-header {
@@ -397,13 +398,24 @@ input:checked + .slider:before {
 
 .preview-container {
   display: flex;
-  gap: 10px;
+  gap: 12px; /* Space between preview boxes */
+  justify-content: center; /* Center align the preview boxes */
 }
 
 .preview-box {
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 5px;
+  flex: 1;
+  background-color: white;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  font-size: 0.9rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.preview-box h4 {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1e293b;
 }
 
 .status-indicator {
@@ -411,14 +423,15 @@ input:checked + .slider:before {
   width: 10px;
   height: 10px;
   border-radius: 50%;
+  margin-right: 6px;
 }
 
 .status-on {
-  background-color: green;
+  background-color: #10b981;
 }
 
 .status-off {
-  background-color: red;
+  background-color: #ef4444;
 }
 
 /* Save Button */
@@ -456,6 +469,18 @@ input:checked + .slider:before {
   color: red;
   margin-top: 5px;
   font-size: 0.9em;
+}
+
+/* Grey Background Class */
+.cool-grey-background {
+  background-color: #f8fafc; /* Light cool-grey background */
+  padding: 10px; /* Add padding for better spacing */
+  border-radius: 5px; /* Rounded corners */
+  margin-bottom: 15px; /* Space between sections */
+}
+
+.switch-toggle.cool-grey-background {
+  margin-bottom: 15px; /* Ensure consistent spacing */
 }
 
 /* Responsive Design */
