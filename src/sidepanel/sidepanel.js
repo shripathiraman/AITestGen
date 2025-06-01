@@ -517,6 +517,10 @@ ${testScript}`;
       if (settings.testScript !== undefined) {
         document.getElementById('test-script').checked = settings.testScript;
       }
+
+      // Update preview icons
+      updatePreviewIcons();
+      console.log("[SP] Settings loaded and applied to UI.");
     });
   }
 
@@ -591,6 +595,9 @@ ${testScript}`;
         saveBtn.textContent = originalText;
         saveBtn.style.background = originalBg;
       }, 2000);
+
+      // Inside the saveSettings function, after saving is complete
+      document.getElementById('feature-test').addEventListener('change', updatePreviewIcons);
     });
   }
 
@@ -637,12 +644,36 @@ ${testScript}`;
     previewIcons.innerHTML = '';
 
     // Update Output Format Icon
-    const outputFormat = outputFormatToggle.querySelector('.dual-option.active').dataset.value;
-    const outputFormatIcon = document.createElement('div');
-    outputFormatIcon.className = 'preview-icon';
-    outputFormatIcon.title = `Output Format: ${outputFormat === 'manual' ? 'Manual Test' : 'Feature File'}`;
-    outputFormatIcon.textContent = outputFormat === 'manual' ? '📝' : '🧩';
-    previewIcons.appendChild(outputFormatIcon);
+    // Only show Output Format icon if feature-test checkbox is checked
+    const featureTestChecked = document.getElementById('feature-test').checked;
+    if(featureTestChecked) { 
+      const outputFormat = outputFormatToggle.querySelector('.dual-option.active').dataset.value;
+      const outputFormatIcon = document.createElement('div');
+      outputFormatIcon.className = 'preview-icon';
+      outputFormatIcon.title = `Output Format: ${outputFormat === 'manual' ? 'Manual Test' : 'Feature File'}`;
+      outputFormatIcon.textContent = outputFormat === 'manual' ? '📝' : '🧩';
+      previewIcons.appendChild(outputFormatIcon);
+    }
+
+    // Update Page Object Model Icon
+    const pageObjectModelChecked = document.getElementById('test-page').checked;
+    if (pageObjectModelChecked) {
+      const pageObjectModelIcon = document.createElement('div');
+      pageObjectModelIcon.className = 'preview-icon';
+      pageObjectModelIcon.title = 'Page Object Model: Enabled';
+      pageObjectModelIcon.textContent = '📦';
+      previewIcons.appendChild(pageObjectModelIcon);
+    }    
+
+    // Update Test Script Icon
+    const testScriptChecked = document.getElementById('test-script').checked;
+    if (testScriptChecked) {
+      const testScriptIcon = document.createElement('div');
+      testScriptIcon.className = 'preview-icon';
+      testScriptIcon.title = 'Test Script: Enabled';
+      testScriptIcon.textContent = '💻';
+      previewIcons.appendChild(testScriptIcon);
+    }    
 
     // Update Multi-Page Icon
     const multiPageIcon = document.createElement('div');
@@ -678,6 +709,23 @@ ${testScript}`;
     updatePreviewIcons();
   });
 
+  // Add this with the other event listeners at the bottom of the file
+  document.getElementById('feature-test').addEventListener('change', () => {
+    console.log("[SP] Feature test checkbox toggled");
+    updatePreviewIcons();
+  });
+
+  // Add this with the other event listeners at the bottom of the file
+  document.getElementById('test-page').addEventListener('change', () => {
+    console.log("[SP] Test page checkbox toggled");
+    updatePreviewIcons();
+  });  
+
+  // Add this with the other event listeners at the bottom of the file
+  document.getElementById('test-script').addEventListener('change', () => {
+    console.log("[SP] Test script checkbox toggled");
+    updatePreviewIcons();
+  });   
   // Initial Update
   updatePreviewIcons();
 });
