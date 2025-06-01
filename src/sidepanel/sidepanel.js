@@ -137,39 +137,46 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Reset button
   resetBtn.addEventListener('click', () => {
-    // Ask for confirmation before resetting
-    const confirmReset = confirm("Are you sure you want to reset? This will clear all selected elements, context, and generated output.");
-    
-    if (confirmReset) {
-      console.log("[SP] Reset confirmed by user.");
+      // Ask for confirmation before resetting
+      const confirmReset = confirm("Are you sure you want to reset? This will clear all selected elements, context, and generated output.");
+      
+      if (confirmReset) {
+          console.log("[SP] Reset confirmed by user.");
+        
+          // Stop inspection if it's active
+          stopInspection();
 
-      // Stop inspection if it's active
-      stopInspection();
+          // Clear selected elements
+          // First send reset message to content script to clear highlights
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              console.log("[SP] Sending resetInspect message to content script.");
+              chrome.tabs.sendMessage(tabs[0].id, { action: "resetInspect" }, () => {
+                  // After highlights are cleared, reset local state
+                  currentElements = [];
+                  renderElements();
 
-      // Clear selected elements
-      currentElements = [];
-      renderElements();
+                  // Clear context input
+                  contextInput.value = '';
 
-      // Clear context input
-      contextInput.value = '';
+              // Clear generated output
+              const outputSection = document.querySelector('.output-section');
+              outputSection.style.display = 'none'; // Hide the output section
+              outputArea.value = ''; // Clear the output area
+      
+              // Remove data from storage
+                  chrome.storage.local.remove(['selectedElements', 'context']);
+          console.log("[SP] Cleared selected elements, context, and output from storage.");
 
-      // Clear generated output
-      const outputSection = document.querySelector('.output-section');
-      outputSection.style.display = 'none'; // Hide the output section
-      outputArea.value = ''; // Clear the output area
-
-      // Remove data from storage
-      chrome.storage.local.remove(['selectedElements', 'context']);
-      console.log("[SP] Cleared selected elements, context, and output from storage.");
-
-      // Send reset message to content script
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        console.log("[SP] Sending resetInspect message to content script.");
-        chrome.tabs.sendMessage(tabs[0].id, { action: "resetInspect" });
+          // Send reset message to content script
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            console.log("[SP] Sending resetInspect message to content script.");
+            chrome.tabs.sendMessage(tabs[0].id, { action: "resetInspect" });
+          });
+        });
       });
     } else {
-      console.log("[SP] Reset canceled by user.");
-    }
+        console.log("[SP] Reset canceled by user.");
+      }
   });
 
   // Generate button
@@ -344,7 +351,9 @@ ${testScript}`;
       currentElements.push({
         selector: request.selector,
         name: request.name,
-        xpath: request.xpath
+        xpath: request.xpath,
+        html: request.html, /*111*/
+        attributes: request.attributes || {} // Ensure attributes are included
       });
       chrome.storage.local.set({selectedElements: currentElements});
       renderElements();
@@ -363,24 +372,6 @@ ${testScript}`;
 
     chrome.storage.local.set({ featureTest, testPage, testScript }, () => {
       console.log("[SP] Saved AI Output's settings:", { featureTest, testPage, testScript });
-    });
-  });
-
-  // Dual option toggle functionality
-  document.querySelectorAll('.dual-option').forEach(option => {
-    option.addEventListener('click', function() {
-      console.log("[SP] Dual option clicked:", this.textContent);
-      // Remove active class from siblings
-      this.parentElement.querySelectorAll('.dual-option').forEach(el => {
-        el.classList.remove('active');
-      });
-
-      // Add active class to clicked element
-      this.classList.add('active');
-
-      // Update preview
-      const previewBox = document.querySelector('.preview-box:first-child p');
-      previewBox.innerHTML = `<span class="status-indicator status-on"></span> ${this.textContent}`;
     });
   });
 
@@ -477,36 +468,14 @@ ${testScript}`;
           option.classList.remove('active');
           if (option.dataset.value === settings.outputFormat) {
             option.classList.add('active');
-
-            // Update preview
-            // const previewBox = document.querySelector('.preview-box:first-child p');
-            // previewBox.innerHTML = `<span class="status-indicator status-on"></span> ${option.textContent}`;
           }
         });
       }
       if (settings.multiPage !== undefined) {
         document.getElementById('multi-page').checked = settings.multiPage;
-
-        // Update preview
-        /*const previewBoxes = document.querySelectorAll('.preview-box');
-        const statusEl = previewBoxes[1].querySelector('p');
-        if (settings.multiPage) {
-          statusEl.innerHTML = '<span class="status-indicator status-on"></span> Enabled';
-        } else {
-          statusEl.innerHTML = '<span class="status-indicator status-off"></span> Disabled';
-        }*/
       }
       if (settings.testExecution !== undefined) {
         document.getElementById('test-execution').checked = settings.testExecution;
-
-        // Update preview
-        /*const previewBoxes = document.querySelectorAll('.preview-box');
-        const statusEl = previewBoxes[2].querySelector('p');
-        if (settings.testExecution) {
-          statusEl.innerHTML = '<span class="status-indicator status-on"></span> Enabled';
-        } else {
-          statusEl.innerHTML = '<span class="status-indicator status-off"></span> Disabled';
-        }*/
       }
       if (settings.featureTest !== undefined) {
         document.getElementById('feature-test').checked = settings.featureTest;
@@ -728,4 +697,30 @@ ${testScript}`;
   });   
   // Initial Update
   updatePreviewIcons();
+
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log("[SP] Received message from content script:", request);
+    if (request.action === "updateSelectedElements") {
+        currentElements = request.elements.map(element => ({
+            selector: element.selector,
+            name: element.name,
+            xpath: element.xpath,
+            html: element.html,
+            attributes: element.attributes || {} // Ensure attributes are included
+        }));
+        chrome.storage.local.set({ selectedElements: currentElements }, () => {
+          try {
+              renderElements();
+              sendResponse({ status: "elements updated" });
+          } catch (error) {
+              console.error("[SP] Error updating elements:", error);
+              sendResponse({ status: "error", error: error.message });
+          }
+        });
+        return true; // Indicate asynchronous response
+    }
+    console.log("[SP] Action not recognized:", request.action);
+    sendResponse({ status: "unknown action" });
+    return false; // No asynchronous response needed
+  });
 });
