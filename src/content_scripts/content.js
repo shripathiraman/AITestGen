@@ -75,6 +75,7 @@ if (!window.elementInspector) {
                     break;
                 case "removeHighlight":
                     this.removeSpecificHighlight(request.selector);
+                    sendResponse({status: "removed"}); //*** remove the highlighted element */
                     break;
                 default:
                     sendResponse({ status: "unknown action" });

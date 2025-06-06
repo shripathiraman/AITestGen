@@ -280,12 +280,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Add remove event listeners
     document.querySelectorAll('.element-item .remove').forEach(btn => {
+      // In renderElements() function, update the remove event listener:
       btn.addEventListener('click', (e) => {
         const index = parseInt(e.target.dataset.index);
         console.log(`[SP] Removing element at index ${index}.`);
-        currentElements.splice(index, 1);
-        chrome.storage.local.set({selectedElements: currentElements});
-        renderElements();
+        
+        // Check if the element exists at this index
+        if (index >= 0 && index < currentElements.length) {
+          const selectorToRemove = currentElements[index].selector;
+          
+          // Send message to content script to remove highlight
+          chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            if (tabs[0] && tabs[0].id) {
+              chrome.tabs.sendMessage(tabs[0].id, {
+                action: "removeHighlight",
+                selector: selectorToRemove
+              }, (response) => {
+                if (chrome.runtime.lastError) {
+                  console.error("[SP] Error sending removeHighlight:", chrome.runtime.lastError);
+                } else {
+                  console.log("[SP] Remove highlight response:", response);
+                }
+              });
+            }
+          });
+          
+          // Remove from local array and update storage
+          currentElements.splice(index, 1);
+          chrome.storage.local.set({selectedElements: currentElements}, () => {
+            renderElements();
+          });
+        } else {
+          console.error("[SP] Invalid index for removal:", index);
+        }
       });
     });
   }

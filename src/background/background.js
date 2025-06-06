@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("[BG] Received message:", message);
   console.log("[BG] Message sender:", sender);
 
-  if (message.action === "elementSelected") {
+  if (message.action === "elementSelected" || message.action === "removeHighlight") {
     console.log("[BG] Action is 'elementSelected'. Forwarding message to side panel...");
     // Forward to side panel
     chrome.runtime.sendMessage(message, () => {
