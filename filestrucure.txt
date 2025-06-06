@@ -12,4 +12,6 @@ extension/
     │   └── inspect.css
     ├── background/
     │   └── background.js
+    ├── data/
+    │   └── dropdown-data.json
 
