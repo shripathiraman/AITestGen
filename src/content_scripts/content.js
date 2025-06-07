@@ -77,11 +77,40 @@ if (!window.elementInspector) {
                     this.removeSpecificHighlight(request.selector);
                     sendResponse({status: "removed"}); //*** remove the highlighted element */
                     break;
+                case "clearAll":
+                    this.clearAllStates();
+                    sendResponse({ status: "cleared" });
+                    break;
                 default:
                     sendResponse({ status: "unknown action" });
                     break;
             }
             return true; // Indicates async response
+        }
+
+        clearAllStates() {
+            this.isActive = false;
+            this.selectedElements.clear();
+            this.highlightedElement = null;
+            
+            // Remove all highlights from the page
+            document.querySelectorAll('.element-highlight, .element-selected-highlight').forEach(el => {
+                el.classList.remove('element-highlight', 'element-selected-highlight');
+            });
+            
+            // Remove all tooltips
+            document.querySelectorAll('.element-tooltip').forEach(tooltip => {
+                tooltip.remove();
+            });
+            
+            // Reset cursor
+            document.body.style.cursor = '';
+            
+            // Remove event listeners if they exist
+            document.removeEventListener('mousemove', this.handleMouseMove);
+            document.removeEventListener('click', this.handleElementClick, true);
+            
+            console.log("[ElementInspector] All states cleared.");
         }
 
         startInspection() {

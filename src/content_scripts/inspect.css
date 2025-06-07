@@ -17,3 +17,10 @@
   transform: translateY(-100%);
   white-space: nowrap;
 }
+
+.element-highlight, 
+.element-selected-highlight, 
+.element-tooltip {
+    transition: none !important;
+    animation: none !important;
+}

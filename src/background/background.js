@@ -11,11 +11,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("[BG] Received message:", message);
   console.log("[BG] Message sender:", sender);
 
-  if (message.action === "elementSelected" || message.action === "removeHighlight") {
+  if (   message.action === "elementSelected" 
+      || message.action === "removeHighlight"
+      || message.action === "clearAll" ) {
     console.log("[BG] Action is 'elementSelected'. Forwarding message to side panel...");
     // Forward to side panel
-    chrome.runtime.sendMessage(message, () => {
-      sendResponse({ status: "forwarded" }); // Ensure sendResponse is called
+    chrome.runtime.sendMessage(message, (response) => {
+        if (chrome.runtime.lastError) {
+            console.error("[BG] Error forwarding message:", chrome.runtime.lastError);
+            sendResponse({ status: "error", error: chrome.runtime.lastError });
+        } else {
+            sendResponse({ status: "forwarded", response });
+        }
     });
     return true; // Indicate asynchronous response
   } else {

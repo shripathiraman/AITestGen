@@ -139,7 +139,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   resetBtn.addEventListener('click', () => {
       // Ask for confirmation before resetting
       const confirmReset = confirm("Are you sure you want to reset? This will clear all selected elements, context, and generated output.");
-      
       if (confirmReset) {
           console.log("[SP] Reset confirmed by user.");
         
@@ -155,26 +154,36 @@ document.addEventListener('DOMContentLoaded', async () => {
                   currentElements = [];
                   renderElements();
 
-                  // Clear context input
-                  contextInput.value = '';
-
-              // Clear generated output
-              const outputSection = document.querySelector('.output-section');
-              outputSection.style.display = 'none'; // Hide the output section
-              outputArea.value = ''; // Clear the output area
-      
-              // Remove data from storage
+                  contextInput.value = ''; // Clear context input
+                  outputArea.value = ''; // Clear the output area
+                  
+                  // Clear generated output
+                  const outputSection = document.querySelector('.output-section');
+                  outputSection.style.display = 'none'; // Hide the output section
+              
+                  // Remove data from storage
                   chrome.storage.local.remove(['selectedElements', 'context']);
-          console.log("[SP] Cleared selected elements, context, and output from storage.");
+                  console.log("[SP] Cleared selected elements, context, and output from storage.");
 
-          // Send reset message to content script
-          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            console.log("[SP] Sending resetInspect message to content script.");
-            chrome.tabs.sendMessage(tabs[0].id, { action: "resetInspect" });
+                  // Send reset message to content script
+                  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                    console.log("[SP] Sending resetInspect message to content script.");
+                    if (tabs[0] && tabs[0].id) {
+                      chrome.tabs.sendMessage(tabs[0].id, { action: "clearAll" }, (response) => {
+                        if (chrome.runtime.lastError) {
+                          console.error("[SP] Error clearing content script:", chrome.runtime.lastError);
+                        } else {
+                          console.log("[SP] Content script cleared:", response);
+                          renderElements(); // Refresh UI
+                        }
+                      });
+                    } else {
+                      chrome.tabs.sendMessage(tabs[0].id, { action: "resetInspect" });
+                    }
+                  });
+              });
           });
-        });
-      });
-    } else {
+      } else {
         console.log("[SP] Reset canceled by user.");
       }
   });
@@ -300,16 +309,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                   console.error("[SP] Error sending removeHighlight:", chrome.runtime.lastError);
                 } else {
                   console.log("[SP] Remove highlight response:", response);
+                  // Remove from local array and update storage
+                  currentElements.splice(index, 1);
+                  chrome.storage.local.set({selectedElements: currentElements}, () => {
+                    renderElements();
+                  });
                 }
               });
             }
           });
-          
+          /*
           // Remove from local array and update storage
           currentElements.splice(index, 1);
           chrome.storage.local.set({selectedElements: currentElements}, () => {
             renderElements();
           });
+          */
         } else {
           console.error("[SP] Invalid index for removal:", index);
         }
