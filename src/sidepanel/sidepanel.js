@@ -119,7 +119,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Inspect button
   inspectBtn.addEventListener('click', () => {
     console.log("[SP] Inspect button clicked.");
-    isInspecting = true;
+    // Reset inspection state if needed
+    if (!isInspecting) {
+      isInspecting = true;
+    }
     inspectBtn.disabled = true;
     stopBtn.disabled = false;
 
@@ -166,6 +169,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                   console.log("[SP] Cleared selected elements, context, and output from storage.");
 
                   // Send reset message to content script
+                  // Remove data from storage
+                  chrome.storage.local.remove(['selectedElements', 'context']);
+                  console.log("[SP] Cleared selected elements, context, and output from storage.");
+                  /*
                   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                     console.log("[SP] Sending resetInspect message to content script.");
                     if (tabs[0] && tabs[0].id) {
@@ -181,6 +188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                       chrome.tabs.sendMessage(tabs[0].id, { action: "resetInspect" });
                     }
                   });
+                  */
               });
           });
       } else {
