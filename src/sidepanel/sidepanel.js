@@ -172,23 +172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   // Remove data from storage
                   chrome.storage.local.remove(['selectedElements', 'context']);
                   console.log("[SP] Cleared selected elements, context, and output from storage.");
-                  /*
-                  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                    console.log("[SP] Sending resetInspect message to content script.");
-                    if (tabs[0] && tabs[0].id) {
-                      chrome.tabs.sendMessage(tabs[0].id, { action: "clearAll" }, (response) => {
-                        if (chrome.runtime.lastError) {
-                          console.error("[SP] Error clearing content script:", chrome.runtime.lastError);
-                        } else {
-                          console.log("[SP] Content script cleared:", response);
-                          renderElements(); // Refresh UI
-                        }
-                      });
-                    } else {
-                      chrome.tabs.sendMessage(tabs[0].id, { action: "resetInspect" });
-                    }
-                  });
-                  */
+
               });
           });
       } else {
@@ -326,13 +310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               });
             }
           });
-          /*
-          // Remove from local array and update storage
-          currentElements.splice(index, 1);
-          chrome.storage.local.set({selectedElements: currentElements}, () => {
-            renderElements();
-          });
-          */
+
         } else {
           console.error("[SP] Invalid index for removal:", index);
         }
@@ -429,26 +407,6 @@ ${testScript}`;
   document.querySelectorAll('.switch input').forEach(switchInput => {
     switchInput.addEventListener('change', function() {
       console.log(`[SP] Switch toggled: ${this.id}, checked: ${this.checked}`);
-      const previewBoxes = document.querySelectorAll('.preview-box');
-      const id = this.id;
-
-      if (id === 'multi-page') {
-        const statusEl = previewBoxes[1].querySelector('p');
-        if (this.checked) {
-          statusEl.innerHTML = '<span class="status-indicator status-on"></span> Enabled';
-        } else {
-          statusEl.innerHTML = '<span class="status-indicator status-off"></span> Disabled';
-        }
-      }
-
-      if (id === 'test-execution') {
-        const statusEl = previewBoxes[2].querySelector('p');
-        if (this.checked) {
-          statusEl.innerHTML = '<span class="status-indicator status-on"></span> Enabled';
-        } else {
-          statusEl.innerHTML = '<span class="status-indicator status-off"></span> Disabled';
-        }
-      }
     });
   });
 
@@ -536,9 +494,6 @@ ${testScript}`;
       if (settings.testScript !== undefined) {
         document.getElementById('test-script').checked = settings.testScript;
       }
-
-      // Update preview icons
-      updatePreviewIcons();
       console.log("[SP] Settings loaded and applied to UI.");
     });
   }
@@ -614,9 +569,6 @@ ${testScript}`;
         saveBtn.textContent = originalText;
         saveBtn.style.background = originalBg;
       }, 2000);
-
-      // Inside the saveSettings function, after saving is complete
-      document.getElementById('feature-test').addEventListener('change', updatePreviewIcons);
     });
   }
 
@@ -650,103 +602,6 @@ ${testScript}`;
 
   // Initial label update
   updateFeatureTestLabel();
-
-  const outputFormatToggle = document.querySelector('.dual-toggle');
-  const multiPageCheckbox = document.getElementById('multi-page');
-  const testExecutionCheckbox = document.getElementById('test-execution');
-
-  const previewIcons = document.querySelector('.preview-icons');
-
-  const updatePreviewIcons = () => {
-    console.log("[SP] Updating preview icons...");
-    // Clear existing icons
-    previewIcons.innerHTML = '';
-
-    // Update Output Format Icon
-    // Only show Output Format icon if feature-test checkbox is checked
-    const featureTestChecked = document.getElementById('feature-test').checked;
-    if(featureTestChecked) { 
-      const outputFormat = outputFormatToggle.querySelector('.dual-option.active').dataset.value;
-      const outputFormatIcon = document.createElement('div');
-      outputFormatIcon.className = 'preview-icon';
-      outputFormatIcon.title = `Output Format: ${outputFormat === 'manual' ? 'Manual Test' : 'Feature File'}`;
-      outputFormatIcon.textContent = outputFormat === 'manual' ? '📝' : '🧩';
-      previewIcons.appendChild(outputFormatIcon);
-    }
-
-    // Update Page Object Model Icon
-    const pageObjectModelChecked = document.getElementById('test-page').checked;
-    if (pageObjectModelChecked) {
-      const pageObjectModelIcon = document.createElement('div');
-      pageObjectModelIcon.className = 'preview-icon';
-      pageObjectModelIcon.title = 'Page Object Model: Enabled';
-      pageObjectModelIcon.textContent = '📦';
-      previewIcons.appendChild(pageObjectModelIcon);
-    }    
-
-    // Update Test Script Icon
-    const testScriptChecked = document.getElementById('test-script').checked;
-    if (testScriptChecked) {
-      const testScriptIcon = document.createElement('div');
-      testScriptIcon.className = 'preview-icon';
-      testScriptIcon.title = 'Test Script: Enabled';
-      testScriptIcon.textContent = '💻';
-      previewIcons.appendChild(testScriptIcon);
-    }    
-
-    // Update Multi-Page Icon
-    const multiPageIcon = document.createElement('div');
-    multiPageIcon.className = 'preview-icon';
-    multiPageIcon.title = `Multi-Page: ${multiPageCheckbox.checked ? 'Enabled' : 'Disabled'}`;
-    multiPageIcon.textContent = multiPageCheckbox.checked ? '📚' : '📖';
-    previewIcons.appendChild(multiPageIcon);
-
-    // Update Test Execution Icon
-    const testExecutionIcon = document.createElement('div');
-    testExecutionIcon.className = 'preview-icon';
-    testExecutionIcon.title = `Test Execution: ${testExecutionCheckbox.checked ? 'Enabled' : 'Disabled'}`;
-    testExecutionIcon.textContent = testExecutionCheckbox.checked ? '⚡' : '⏹️';
-    previewIcons.appendChild(testExecutionIcon);
-  };
-
-  // Event Listeners
-  outputFormatToggle.addEventListener('click', (event) => {
-    if (event.target.classList.contains('dual-option')) {
-      console.log("[SP] Output format toggle clicked:", event.target.textContent);
-      outputFormatToggle.querySelectorAll('.dual-option').forEach(option => option.classList.remove('active'));
-      event.target.classList.add('active');
-      updatePreviewIcons();
-    }
-  });
-
-  multiPageCheckbox.addEventListener('change', () => {
-    console.log("[SP] Multi-page checkbox toggled:", multiPageCheckbox.checked);
-    updatePreviewIcons();
-  });
-  testExecutionCheckbox.addEventListener('change', () => {
-    console.log("[SP] Test execution checkbox toggled:", testExecutionCheckbox.checked);
-    updatePreviewIcons();
-  });
-
-  // Add this with the other event listeners at the bottom of the file
-  document.getElementById('feature-test').addEventListener('change', () => {
-    console.log("[SP] Feature test checkbox toggled");
-    updatePreviewIcons();
-  });
-
-  // Add this with the other event listeners at the bottom of the file
-  document.getElementById('test-page').addEventListener('change', () => {
-    console.log("[SP] Test page checkbox toggled");
-    updatePreviewIcons();
-  });  
-
-  // Add this with the other event listeners at the bottom of the file
-  document.getElementById('test-script').addEventListener('change', () => {
-    console.log("[SP] Test script checkbox toggled");
-    updatePreviewIcons();
-  });   
-  // Initial Update
-  updatePreviewIcons();
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("[SP] Received message from content script:", request);

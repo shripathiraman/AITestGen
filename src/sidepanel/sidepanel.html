@@ -7,33 +7,15 @@
   <link rel="stylesheet" href="sidepanel.css">
 </head>
 <body>
-  <!-- Current Settings Preview -->
-  <div class="preview-section">
-    <div class="preview-title">Case Carft AI</div>
-    <div class="preview-icons">
-      <div class="preview-icon" title="Output Format: Manual Test">
-        📝
-      </div>
-      <div class="preview-icon" title="Multi-Page: Enabled">
-        📚
-      </div>
-      <div class="preview-icon" title="Test Execution: Disabled">
-        ⚡
-      </div>
-    </div>
-  </div>
-
-  <!-- Tab Header -->
   <div class="tabs">
     <button id="generator-tab" class="active">
-      <span class="tab-icon">📋</span> Record & Generate
+      <span class="tab-icon">📋</span> Case Carft AI
     </button>
     <button id="settings-tab">
       <span class="tab-icon">⚙️</span> Settings
     </button>
   </div>
 
-  <!-- Generator Tab -->
   <div id="generator" class="tab-content active">
 
     <div class="section">
@@ -91,7 +73,6 @@
     </div>
   </div>
 
-  <!-- Settings Tab -->
   <div id="settings" class="tab-content">
     <div class="section">
 
@@ -101,8 +82,7 @@
           Automation Tool
         </label>
         <select id="automation-tool">
-          <!-- Options will be dynamically populated from dropdown-data.json -->
-        </select>
+          </select>
       </div>
 
       <div class="form-group">
@@ -111,8 +91,7 @@
           Programming Language
         </label>
         <select id="language">
-          <!-- Options will be dynamically populated from dropdown-data.json and automation-tool -->
-        </select>
+          </select>
       </div>
 
       <div class="form-group">
@@ -121,8 +100,7 @@
           LLM Provider
         </label>
         <select id="llm-provider">
-          <!-- Options will be dynamically populated from dropdown-data.json -->
-        </select>
+          </select>
       </div>
 
       <div class="form-group">
@@ -131,8 +109,7 @@
           LLM Model
         </label>
         <select id="llm-model">
-          <!-- Options will be dynamically populated from dropdown-data.json and llm-provider-->
-        </select>
+          </select>
       </div>
 
       <div class="form-group">
