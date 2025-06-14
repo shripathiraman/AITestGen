@@ -450,7 +450,6 @@ ${testScript}`;
       'apiKey',
       'outputFormat',
       'multiPage',
-      'testExecution',
       'featureTest',
       'testPage',
       'testScript'
@@ -481,9 +480,6 @@ ${testScript}`;
       }
       if (settings.multiPage !== undefined) {
         document.getElementById('multi-page').checked = settings.multiPage;
-      }
-      if (settings.testExecution !== undefined) {
-        document.getElementById('test-execution').checked = settings.testExecution;
       }
       if (settings.featureTest !== undefined) {
         document.getElementById('feature-test').checked = settings.featureTest;
@@ -549,7 +545,6 @@ ${testScript}`;
       apiKey: document.getElementById('api-key').value,
       outputFormat: document.querySelector('.dual-option.active').dataset.value,
       multiPage: document.getElementById('multi-page').checked,
-      testExecution: document.getElementById('test-execution').checked,
       featureTest: document.getElementById('feature-test').checked,
       testPage: document.getElementById('test-page').checked,
       testScript: document.getElementById('test-script').checked
