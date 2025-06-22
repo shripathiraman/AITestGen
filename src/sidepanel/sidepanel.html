@@ -120,6 +120,11 @@
         <input type="password" id="api-key" placeholder="Enter your API key">
       </div>
 
+    <div class="section ai-output">
+      <div class="section-title ai-output-title">
+        AI Output's
+      </div>
+
       <div class="toggle-container">
         <div class="toggle-header">
           <div class="toggle-title">Test Case Output</div>
@@ -129,21 +134,8 @@
           <div class="dual-option active" data-value="manual">Manual Test</div>
           <div class="dual-option" data-value="feature">Feature File</div>
         </div>
-      </div>
+      </div>      
 
-    <div class="section ai-output">
-      <div class="section-title ai-output-title">
-        AI Output's
-      </div>
-      <div class="switch-toggle">
-        <div class="switch-label">
-          <div class="toggle-title"><label for="feature-test">Manual Test Case</label></div>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="feature-test" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
       <div class="switch-toggle">
         <div class="switch-label">
           <div class="toggle-title">Page Object Model</div>
@@ -153,6 +145,7 @@
           <span class="slider"></span>
         </label>
       </div>
+      
       <div class="switch-toggle">
         <div class="switch-label">
           <div class="toggle-title">Test Script</div>
@@ -182,5 +175,6 @@
   </div>
 
   <script src="sidepanel.js"></script>
+  <script src="settings.js"></script>
 </body>
 </html>
