@@ -3,15 +3,19 @@ extension/
 └── icons/
     └── icon48.png
 └── src/    
-    ├── sidepanel/
-    │   ├── sidepanel.html
-    │   ├── sidepanel.css
-    │   └── sidepanel.js
+    ├── background/
+    │   └── background.js
     ├── content_scripts/
     │   ├── content.js
     │   └── inspect.css
-    ├── background/
-    │   └── background.js
     ├── data/
     │   └── dropdown-data.json
+    ├── sidepanel/
+    │   ├── codegenerate.js
+    │   ├── setting.js
+    │   ├── sidepanel.css
+    │   ├── sidepanel.html
+    │   └── sidepanel.js
+
+
 
