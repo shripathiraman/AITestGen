@@ -1,43 +1,51 @@
+// Import the CodeGenerator class (assuming generate.js is loaded as a module or globally available)
+// If generate.js is loaded via <script type="module"> in HTML, you might use:
+import { CodeGenerator } from './codegenerate.js'; 
+// For simplicity in this direct modification, we assume it's available globally or loaded before this script.
+
 document.addEventListener('DOMContentLoaded', async () => {
   console.log("[SP] DOM fully loaded and parsed.");
 
-  // Tab switching
-  document.getElementById('generator-tab').addEventListener('click', () => {
-    console.log("[SP] Generator tab clicked.");
-    switchTab('generator');
-  });
-  document.getElementById('settings-tab').addEventListener('click', () => {
-    console.log("[SP] Settings tab clicked.");
-    switchTab('settings');
-  });
-
-  // Generator tab functionality
+  const generatorTabBtn = document.getElementById('generator-tab');
+  const settingsTabBtn = document.getElementById('settings-tab');
   const inspectBtn = document.getElementById('inspect-btn');
   const stopBtn = document.getElementById('stop-btn');
   const resetBtn = document.getElementById('reset-btn');
-  const generateBtn = document.getElementById('generate-btn');
-  const copyBtn = document.getElementById('copy-btn');
-  const downloadBtn = document.getElementById('download-btn');
-  const contextInput = document.getElementById('context-input');
-  const outputArea = document.getElementById('output-area');
-  const selectedElements = document.getElementById('selected-elements');
-  const elementCount = document.getElementById('element-count');
+  const selectedElementsDisplay = document.getElementById('selected-elements'); // Renamed to avoid confusion with internal currentElements
+  const elementCountDisplay = document.getElementById('element-count'); // Renamed for clarity
 
   let currentElements = [];
   let isInspecting = false;
+  let codeGenerator; // Declare a variable to hold the CodeGenerator instance
+
+  // Initialize CodeGenerator after DOM is ready
+  // This assumes CodeGenerator class is defined and accessible (e.g., from generate.js loaded prior)
+  if (document.getElementById('generator')) { // Check if generator tab elements are present
+    codeGenerator = new CodeGenerator();
+  }
 
   // Initialize from storage for generator-specific elements and context
-  chrome.storage.local.get(['selectedElements', 'context'], (result) => {
+  // This part now primarily focuses on `selectedElements` as `context` is managed by CodeGenerator
+  chrome.storage.local.get(['selectedElements'], (result) => {
     console.log("[SP] Initializing Generator from storage:", result);
     if (result.selectedElements) {
       currentElements = result.selectedElements;
       console.log("[SP] Loaded selected elements:", currentElements);
       renderElements();
+      if (codeGenerator) {
+        codeGenerator.updateSelectedElements(currentElements); // Inform CodeGenerator about initial elements
+      }
     }
-    if (result.context) {
-      contextInput.value = result.context;
-      console.log("[SP] Loaded context:", result.context);
-    }
+  });
+
+  // Tab switching
+  generatorTabBtn.addEventListener('click', () => {
+    console.log("[SP] Generator tab clicked.");
+    switchTab('generator');
+  });
+  settingsTabBtn.addEventListener('click', () => {
+    console.log("[SP] Settings tab clicked.");
+    switchTab('settings');
   });
 
   // Tab switching function
@@ -55,17 +63,37 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Inspect button
-  inspectBtn.addEventListener('click', () => {
+  inspectBtn.addEventListener('click', async () => {
     console.log("[SP] Inspect button clicked.");
-    if (!isInspecting) {
-      isInspecting = true;
-    }
-    inspectBtn.disabled = true;
-    stopBtn.disabled = false;
 
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-      console.log("[SP] Sending startInspect message to content script.");
-      chrome.tabs.sendMessage(tabs[0].id, {action: "startInspect"});
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+      const tab = tabs[0];
+      if (!tab) {
+        console.error("No active tab found.");
+        return;
+      }
+      // Add the new URL check here
+      if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
+        console.log('Cannot use inspector on this page');
+        alert('Cannot use the inspector on Chrome internal pages or extension pages.'); // Alert message
+        return; // Stop execution
+      }
+
+      // ... rest of your inspection logic (sending messages to content script) ...
+      // Example of existing logic that would follow:
+      try {
+        await chrome.tabs.sendMessage(tab.id, { action: "startInspect" });
+        if (!isInspecting) {
+          isInspecting = true;
+          alert('test')
+        }
+        inspectBtn.disabled = true;
+        stopBtn.disabled = false;
+        console.log("[SP] Sent startInspect message.");
+      } catch (error) {
+        console.error("[SP] Error sending startInspect message:", error);
+        alert('Failed to start inspector. Make sure the content script is running and has permissions.');
+      }
     });
   });
 
@@ -77,91 +105,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Reset button
   resetBtn.addEventListener('click', () => {
-      const confirmReset = confirm("Are you sure you want to reset? This will clear all selected elements, context, and generated output.");
-      if (confirmReset) {
-          console.log("[SP] Reset confirmed by user.");
-          stopInspection();
+    const confirmReset = confirm("Are you sure you want to reset? This will clear all selected elements, context, and generated output.");
+    if (confirmReset) {
+      console.log("[SP] Reset confirmed by user.");
+      stopInspection();
 
-          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-              console.log("[SP] Sending resetInspect message to content script.");
-              chrome.tabs.sendMessage(tabs[0].id, { action: "resetInspect" }, () => {
-                  currentElements = [];
-                  renderElements();
-                  contextInput.value = '';
-                  outputArea.value = '';
-                  document.querySelector('.output-section').style.display = 'none';
-                  chrome.storage.local.remove(['selectedElements', 'context']);
-                  console.log("[SP] Cleared selected elements, context, and output from storage.");
-              });
-          });
-      } else {
-        console.log("[SP] Reset canceled by user.");
-      }
-  });
-
-  // Generate button
-  generateBtn.addEventListener('click', async () => {
-    console.log("[SP] Generate button clicked.");
-    // Retrieve latest settings from storage (these are managed by SettingsManager)
-    const settings = await new Promise(resolve => {
-      chrome.storage.local.get([
-        'featureTest',
-        'testPage',
-        'testScript',
-        'language',
-        'automationTool',
-        'llmProvider',
-        'llmModel'
-      ], resolve);
-    });
-
-    const checkboxesChecked = settings.featureTest || settings.testPage || settings.testScript;
-
-    if (!checkboxesChecked) {
-      console.log("[SP] No output type selected based on settings.");
-      alert("Please select at least one output type in Settings (Manual Test Case, Page Object Model, or Test Script).");
-      return;
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        console.log("[SP] Sending resetInspect message to content script.");
+        chrome.tabs.sendMessage(tabs[0].id, { action: "resetInspect" }, () => {
+          currentElements = [];
+          renderElements();
+          // Reset context and output area via CodeGenerator if it exists
+          if (codeGenerator && codeGenerator.elements['context-input']) {
+            codeGenerator.elements['context-input'].value = '';
+          }
+          if (codeGenerator && codeGenerator.elements['output-area']) {
+            codeGenerator.elements['output-area'].value = '';
+          }
+          if (codeGenerator && codeGenerator.elements['output-section']) {
+            codeGenerator.elements['output-section'].style.display = 'none';
+          }
+          chrome.storage.local.remove(['selectedElements', 'context']);
+          console.log("[SP] Cleared selected elements, context, and output from storage.");
+        });
+      });
+    } else {
+      console.log("[SP] Reset canceled by user.");
     }
-
-    if (currentElements.length === 0) {
-      console.log("[SP] No elements selected.");
-      alert("Please select at least one element");
-      return;
-    }
-
-    const context = contextInput.value;
-    chrome.storage.local.set({context});
-    console.log("[SP] Saved context:", context);
-
-    document.querySelector('.output-section').style.display = 'block';
-    console.log("[SP] Output section displayed.");
-
-    const testCase = generateTestCase(currentElements, context, settings);
-    console.log("[SP] Generated test case:", testCase);
-    outputArea.value = testCase;
-  });
-
-  // Copy button
-  copyBtn.addEventListener('click', () => {
-    console.log("[SP] Copy button clicked.");
-    outputArea.select();
-    document.execCommand('copy');
-    alert("Copied to clipboard!");
-  });
-
-  // Download button
-  downloadBtn.addEventListener('click', () => {
-    console.log("[SP] Download button clicked.");
-    const blob = new Blob([outputArea.value], {type: 'text/plain'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'test-case.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    console.log("[SP] Test case downloaded.");
   });
 
   // Stop inspection function
@@ -171,17 +141,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     inspectBtn.disabled = false;
     stopBtn.disabled = true;
 
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       console.log("[SP] Sending stopInspect message to content script.");
-      chrome.tabs.sendMessage(tabs[0].id, {action: "stopInspect"});
+      chrome.tabs.sendMessage(tabs[0].id, { action: "stopInspect" });
     });
   }
 
   // Render selected elements
   function renderElements() {
     console.log("[SP] Rendering selected elements:", currentElements);
-    selectedElements.innerHTML = '';
-    elementCount.textContent = currentElements.length;
+    selectedElementsDisplay.innerHTML = '';
+    elementCountDisplay.textContent = currentElements.length;
 
     currentElements.forEach((element, index) => {
       const elemDiv = document.createElement('div');
@@ -190,18 +160,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         ${element.name || element.selector}
         <span class="remove" data-index="${index}">×</span>
       `;
-      selectedElements.appendChild(elemDiv);
+      selectedElementsDisplay.appendChild(elemDiv);
     });
 
     document.querySelectorAll('.element-item .remove').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const index = parseInt(e.target.dataset.index);
         console.log(`[SP] Removing element at index ${index}.`);
-        
+
         if (index >= 0 && index < currentElements.length) {
           const selectorToRemove = currentElements[index].selector;
-          
-          chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             if (tabs[0] && tabs[0].id) {
               chrome.tabs.sendMessage(tabs[0].id, {
                 action: "removeHighlight",
@@ -212,8 +182,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else {
                   console.log("[SP] Remove highlight response:", response);
                   currentElements.splice(index, 1);
-                  chrome.storage.local.set({selectedElements: currentElements}, () => {
+                  chrome.storage.local.set({ selectedElements: currentElements }, () => {
                     renderElements();
+                    if (codeGenerator) {
+                      codeGenerator.updateSelectedElements(currentElements); // Update CodeGenerator
+                    }
                   });
                 }
               });
@@ -224,60 +197,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
     });
-  }
-
-  // Generate test case
-  function generateTestCase(elements, context, settings) {
-    console.log("[SP] Generating test case with elements:", elements, "context:", context, "settings:", settings);
-    const featureName = "Form Submission Validation";
-    const elementsList = elements.map(e => `- ${e.name || e.selector}`).join('\n');
-
-    let testScript = '';
-    if (settings.automationTool === 'playwright') {
-      testScript = `import { test, expect } from '@playwright/test';`;
-
-      testScript += `
-test('validate form submission', async ({ page }) => {
-  await page.goto('https://example.com');
-  ${elements.map(e => {
-        if (e.selector.startsWith('input')) {
-          return `await page.locator('${e.selector}').fill('test data');`;
-        } else if (e.selector.startsWith('button')) {
-          return `await page.locator('${e.selector}').click();`;
-        }
-        return '';
-      }).filter(Boolean).join('\n  ')}
-});`;
-    } else {
-      testScript = `// Selenium test script would be generated here`;
-    }
-
-    return `Generated using:
-- Language: ${settings.language || 'TypeScript'}
-- Tool: ${settings.automationTool || 'Playwright'}
-- Model: ${settings.llmModel || 'Deepseek'}
-
-Feature: ${featureName}
-As a user
-I want to submit valid form data
-So that I can successfully complete the registration process
-
-Elements Selected:
-${elementsList}
-
-User Context:
-${context || "No additional context provided"}
-
-Generated Test Case:
-Scenario: Validate form submission with valid data
-Given I am on the registration page
-When I enter valid username
-And I enter valid password
-And I click the submit button
-Then I should see the welcome message
-
-Test Script:
-${testScript}`;
   }
 
   // Listen for element selections from content script
@@ -291,29 +210,38 @@ ${testScript}`;
         html: request.html,
         attributes: request.attributes || {}
       });
-      chrome.storage.local.set({selectedElements: currentElements});
+      chrome.storage.local.set({ selectedElements: currentElements });
       renderElements();
+      if (codeGenerator) {
+        codeGenerator.updateSelectedElements(currentElements); // Inform CodeGenerator
+      }
     } else if (request.action === "updateSelectedElements") {
-        currentElements = request.elements.map(element => ({
-            selector: element.selector,
-            name: element.name,
-            xpath: element.xpath,
-            html: element.html,
-            attributes: element.attributes || {}
-        }));
-        chrome.storage.local.set({ selectedElements: currentElements }, () => {
-          try {
-              renderElements();
-              sendResponse({ status: "elements updated" });
-          } catch (error) {
-              console.error("[SP] Error updating elements:", error);
-              sendResponse({ status: "error", error: error.message });
+      currentElements = request.elements.map(element => ({
+        selector: element.selector,
+        name: element.name,
+        xpath: element.xpath,
+        html: element.html,
+        attributes: element.attributes || {}
+      }));
+      chrome.storage.local.set({ selectedElements: currentElements }, () => {
+        try {
+          renderElements();
+          if (codeGenerator) {
+            codeGenerator.updateSelectedElements(currentElements); // Inform CodeGenerator
           }
-        });
-        return true;
+          sendResponse({ status: "elements updated" });
+        } catch (error) {
+          console.error("[SP] Error updating elements:", error);
+          sendResponse({ status: "error", error: error.message });
+        }
+      });
+      return true; // Indicate that sendResponse will be called asynchronously
     }
-    console.log("[SP] Action not recognized:", request.action);
-    sendResponse({ status: "unknown action" });
-    return false;
+    // Only send response for "elementSelected" if it's not handled by "updateSelectedElements"
+    // For other unhandled actions, it's better not to send a response if not explicitly needed
+    if (request.action !== "updateSelectedElements") {
+        console.log("[SP] Action not recognized or handled elsewhere:", request.action);
+        sendResponse({ status: "unknown action or already handled" });
+    }
   });
 });
